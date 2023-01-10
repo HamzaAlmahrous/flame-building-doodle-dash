@@ -93,15 +93,21 @@ class Player extends SpriteGroupComponent<PlayerState>
 
   void moveLeft() {
     _hAxisInput = 0;
-
-    current = PlayerState.left; 
+    if (isWearingHat) {
+      current = PlayerState.nooglerLeft;
+    } else if (!hasPowerup) { 
+      current = PlayerState.left;
+    }                            
     _hAxisInput += movingLeftInput;
   }
 
   void moveRight() {
     _hAxisInput = 0;
-
-    current = PlayerState.right;
+    if (isWearingHat) {
+      current = PlayerState.nooglerRight;
+    } else if (!hasPowerup) {
+      current = PlayerState.right;
+    }
     _hAxisInput += movingRightInput;
   }
 
@@ -109,17 +115,24 @@ class Player extends SpriteGroupComponent<PlayerState>
     _hAxisInput = 0;
   }
 
-  // Powerups: Add hasPowerup getter
+  bool get hasPowerup => 
+     current == PlayerState.rocket ||
+     current == PlayerState.nooglerLeft ||
+     current == PlayerState.nooglerRight ||
+     current == PlayerState.nooglerCenter;
 
-  // Powerups: Add isInvincible getter
+ bool get isInvincible => current == PlayerState.rocket;
 
-  // Powerups: Add isWearingHat getter
+ bool get isWearingHat =>
+     current == PlayerState.nooglerLeft ||
+     current == PlayerState.nooglerRight ||
+     current == PlayerState.nooglerCenter;
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
-    if (other is EnemyPlatform) {
+    if (other is EnemyPlatform && !isInvincible) { 
       gameRef.onLose();
       return;
     }
@@ -140,6 +153,21 @@ class Player extends SpriteGroupComponent<PlayerState>
         other.breakPlatform();
         return;
       }
+    }
+
+    if (!hasPowerup && other is Rocket) {
+      current = PlayerState.rocket;
+      other.removeFromParent();
+      jump(specialJumpSpeed: jumpSpeed * other.jumpSpeedMultiplier);
+      return;
+    } else if (!hasPowerup && other is NooglerHat) {
+      if (current == PlayerState.center) current = PlayerState.nooglerCenter;
+      if (current == PlayerState.left) current = PlayerState.nooglerLeft;
+      if (current == PlayerState.right) current = PlayerState.nooglerRight;
+      other.removeFromParent();
+      _removePowerupAfterTime(other.activeLengthInMS);
+      jump(specialJumpSpeed: jumpSpeed * other.jumpSpeedMultiplier);
+      return;
     }
   }
 
