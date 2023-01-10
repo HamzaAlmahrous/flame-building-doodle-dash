@@ -78,7 +78,7 @@ class ObjectManager extends Component with HasGameRef<DoodleDash> {
     }
 
     super.update(dt);
-  }  
+  }
 
   final Map<String, bool> specialPlatforms = {
     'spring': true, // level 1
@@ -99,8 +99,14 @@ class ObjectManager extends Component with HasGameRef<DoodleDash> {
   }
 
   void enableLevelSpecialty(int level) {
-    // More on Platforms: Add switch statement to enable SpringBoard for
-    // level 1 and BrokenPlatform for level 2
+    switch (level) {
+      case 1:
+        enableSpecialty('spring');
+        break;
+      case 2:
+        enableSpecialty('broken');
+        break;
+    }
   }
 
   void resetSpecialties() {
@@ -151,7 +157,16 @@ class ObjectManager extends Component with HasGameRef<DoodleDash> {
   }
 
   Platform _semiRandomPlatform(Vector2 position) {
-      return NormalPlatform(position: position);
+    if (specialPlatforms['spring'] == true &&
+        probGen.generateWithProbability(15)) {
+      return SpringBoard(position: position);
+    }
+
+    if (specialPlatforms['broken'] == true &&
+        probGen.generateWithProbability(10)) {
+      return BrokenPlatform(position: position);
+    }
+    return NormalPlatform(position: position);
   }
 
   // Losing the game: Add enemy code
