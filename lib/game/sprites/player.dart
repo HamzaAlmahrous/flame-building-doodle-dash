@@ -40,7 +40,7 @@ class Player extends SpriteGroupComponent<PlayerState>
   bool get isMovingDown => _velocity.y > 0;
   Character character;
   double jumpSpeed;
-  // Core gameplay: Add _gravity property
+  final double _gravity = 9;
 
   @override
   Future<void> onLoad() async {
@@ -62,6 +62,7 @@ class Player extends SpriteGroupComponent<PlayerState>
 
 
     // Core gameplay: Add gravity
+    
     if (position.x < dashHorizontalCenter) {
       position.x = gameRef.size.x - (dashHorizontalCenter);
     }
@@ -83,7 +84,7 @@ class Player extends SpriteGroupComponent<PlayerState>
     if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
       moveRight();
     }
-    
+
     if (keysPressed.contains(LogicalKeyboardKey.arrowUp)) {
       // jump();
     }
